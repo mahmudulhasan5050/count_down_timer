@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Count Down Timer</title>
+    <style>
+        .main {
+            margin: auto;
+            width: 70%;
+            border: 5px solid #00cf2d;
+            padding: 10px;
+        }
+
+        h3 {
+            margin: auto;
+            width: 10%;
+            margin-bottom: 10px;
+        }
+
+        input {
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+
+        .clock {
+            background-color: #02e63f;
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            font-size: 2em;
+        }
+
+        .clock>span {
+            padding: 5px;
+            border-radius: 10px;
+            border-color:#000000;
+
+        }
+
+        .clock>span>span {
+            padding: 5px;
+            border-radius: 10px;
+            background-color: #f50000;
+
+        }
+
+        button {
+            display: block;
+            margin: 0 auto;
+            color: #ffffff;
+            background-color: #80002a;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <h3>Time Counter</h3>
+        <input type="date" name="endDate">
+        <div class="clock">
+            <span><span class="days">0</span> Days</span>
+            <span><span class="hours">0</span> Hours</span>
+            <span><span class="minutes">0</span> Munites</span>
+            <span><span class="seconds">0</span> Seconds</span>
+        </div>
+        <div class="button"><button onclick="clearStorage()">Clear</button></div>
+    </div>
+    <script>
+
+        const endDate = document.querySelector("input[name='endDate']");
+        const clock = document.querySelector(".clock");
+        let timeInterval;
+        let timeStop = true;
+        const savedValue = localStorage.getItem("storedValue") || false; //get the stored value or it will be false
+
+
+        endDate.addEventListener("change", e => {
+            e.preventDefault();
+            clearInterval(timeInterval);
+            const temp = new Date(endDate.value);
+            localStorage.setItem("storedValue", temp);  // storing date to local storage
+            startClock(temp);
+            timeStop = true;
+        })
+
+
+        //start the clock
+        const startClock = (d) => {
+
+            const updateCounter = () => {
+                let countedTime = timeLeft(d);
+                (countedTime.total <= 0) ? timeStop = false : timeStop = true;
+
+                for (let item in countedTime) {
+                    let itm = clock.querySelector("." + item);
+                    itm ? itm.innerHTML = countedTime[item] : false;
+                }
+            }
+            updateCounter();
+            timeStop ? timeInterval = setInterval(updateCounter, 1000) : clearInterval(timeInterval);
+        }
+
+
+        const timeLeft = (d) => {
+            let currentDate = new Date();
+            let timeFromCurrentDate = Date.parse(d) - Date.parse(currentDate);
+
+            let seconds = Math.floor((timeFromCurrentDate / 1000) % 60);
+            let minutes = Math.floor((timeFromCurrentDate / (1000 * 60)) % 60);
+            let hours = Math.floor((timeFromCurrentDate / (1000 * 60 * 60)) % 24);
+            let days = Math.floor(timeFromCurrentDate / (1000 * 60 * 60 * 24));
+
+            return {
+                "total": timeFromCurrentDate,
+                "days": days,
+                "hours": hours,
+                "minutes": minutes,
+                "seconds": seconds
+            }
+        };
+        //passing stored date to the function and 
+        if (savedValue) {
+            startClock(savedValue);
+            let inputValue = new Date(savedValue);
+            endDate.valueAsDate = inputValue;
+        }
+
+        const clearStorage = () => {
+            localStorage.clear();
+            document.location.reload(true);
+        }
+    </script>
+</body>
+
+</html>
